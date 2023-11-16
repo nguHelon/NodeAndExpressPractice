@@ -1,14 +1,27 @@
 import express from "express";
 import dotenv from "dotenv";
-import connect from "./db/connection.js"
+import connect from "./db/connection.js";
+import taskRouter from "./routes/tasks.js";
 
 const app = express();
 dotenv.config();
 
+// middlewares
 app.use(express.json());
 
-app.get("/", (req, res) => {
-    res.send("hello");
+// route middlewares
+app.use('/api/tasks', taskRouter)
+
+// General error middleware
+app.use((err, req, res, next) => {
+    const statusCode = err.statusCode || 500;
+    const message = err.message || 'internal server error';
+
+    res.status(statusCode).json({
+        success: false,
+        statusCode,
+        message,
+    })
 })
 
 const MONGO_URI = process.env.MONGO_URI;
