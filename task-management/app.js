@@ -1,16 +1,22 @@
 import express from "express";
 import dotenv from "dotenv";
+import cookieParser from "cookie-parser";
 import connect from "./db/connection.js";
 import taskRouter from "./routes/tasks.js";
+import authRouter from "./routes/users.js";
+import userRouter from "./routes/userActions.js";
 
 const app = express();
 dotenv.config();
 
 // middlewares
 app.use(express.json());
+app.use(cookieParser());
 
 // route middlewares
-app.use('/api/tasks', taskRouter)
+app.use('/api/tasks', taskRouter);
+app.use('/auth', authRouter);
+app.use('/users', userRouter);
 
 // General error middleware
 app.use((err, req, res, next) => {
