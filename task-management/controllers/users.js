@@ -32,7 +32,7 @@ const logIn = async (req, res, next) => {
             next(errorHandler(404, "Wrong credential"));
         }
 
-        const token = jwt.sign({ id: user._id }, process.env.TOKEN_SECRET);
+        const token = jwt.sign({ id: user._id, admin: user.admin }, process.env.TOKEN_SECRET);
         const { password: pass, ...rest } = user._doc;
 
         res.

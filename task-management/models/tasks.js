@@ -12,6 +12,10 @@ const TaskSchema = mongoose.Schema({
     status: {
         type: String,
         default: "on-hold"
+    },
+    taskOwner: {
+        type: String,
+        required: true
     }
 }, { timestamps: true });
 

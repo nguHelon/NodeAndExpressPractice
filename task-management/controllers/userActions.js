@@ -22,21 +22,20 @@ const updateUser = async (req, res, next) => {
     let { password, username } = req.body;
     const { id: userId } = req.params;
 
-    if (req.user.id != userId) {
-        next(errorHandler(401, "You are not allowed to update a user except yourself"));
-    }
-
     try {
+        if (req.user.id == userId || req.user.admin) {
+            if (password) {
+                password = bcryptjs.hashSync(password, process.env.TOKEN_SECRET);
+            }
 
-        if (password) {
-            password = bcryptjs.hashSync(password, process.env.TOKEN_SECRET);
+            const updateUser = await User.findByIdAndUpdate(userId, { password, username }, { new: true })
+
+            const { password: pass, ...rest } = updateUser._doc;
+
+            res.status(200).json(rest);
+        } else if ((req.user.id != userId || !req.user.admin)) {
+            next(errorHandler(401, "You are not allowed to update a user except yourself"));
         }
-
-        const updateUser = await User.findByIdAndUpdate(userId, { password, username }, { new: true })
-
-        const { password: pass, ...rest } = updateUser._doc;
-
-        res.status(200).json(rest);
     } catch (err) {
         next(err);
     }
@@ -45,14 +44,14 @@ const updateUser = async (req, res, next) => {
 const deleteUser = async (req, res, next) => {
     const { id: userId } = req.params;
 
-    if (req.user.id != userId) {
-        next(errorHandler(401, "You are not allowed to delete a user except yourself"))
-    }
-
     try {
-        await User.findByIdAndDelete(userId);
-        res.clearCookie("access_token");
-        res.status(200).json("User deleted successfully");
+        if (req.user.id == userId || req.user.admin) {
+            await User.findByIdAndDelete(userId);
+            res.clearCookie("access_token");
+            res.status(200).json("User deleted successfully");
+        } else if (req.user.id != userId || !req.body.admin) {
+            next(errorHandler(401, "You are not allowed to update a user except yourself"));
+        }
     } catch (err) {
         next(err);
     }

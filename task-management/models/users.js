@@ -9,8 +9,9 @@ const userSchema = mongoose.Schema({
         type: String,
         required: true
     },
-    tasks: {
-        type: Array
+    admin: {
+        type: Boolean,
+        default: false
     }
 });
 
